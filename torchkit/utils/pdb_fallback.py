@@ -43,18 +43,6 @@ def pdb_fallback(f: CallableType, use_ipdb: bool = False) -> CallableType:
     @functools.wraps(f)
     def inner_wrapper(*args, **kwargs):
         # Open pdb on Ctrl-C.
-        def handler(sig, frame):
-            pdb.set_trace()
-
-        signal.signal(signal.SIGINT, handler)
-
-        # Open pdb when we encounter an uncaught exception.
-        def excepthook(type_, value, traceback):
-            tb.print_exception(type_, value, traceback, limit=100)
-            pdb.post_mortem(traceback)
-
-        sys.excepthook = excepthook
-
-        return f(*args, **kwargs)
+        pass
 
     return inner_wrapper

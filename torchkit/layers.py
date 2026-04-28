@@ -28,23 +28,7 @@ def _conv(
         dilation: The filter dilation factor.
         bias: Whether to add a bias.
     """
-    assert dim in [2, 3], "[!] Only 2D and 3D convolution supported."
-    conv = nn.Conv2d if dim == 2 else nn.Conv3d
-
-    # Compute new filter size after dilation and necessary padding for `same`
-    # output size.
-    dilated_kernel_size = (kernel_size - 1) * (dilation - 1) + kernel_size
-    same_padding = (dilated_kernel_size - 1) // 2
-
-    return conv(
-        in_channels,
-        out_channels,
-        kernel_size=kernel_size,
-        stride=stride,
-        padding=same_padding,
-        dilation=dilation,
-        bias=bias,
-    )
+    pass
 
 
 def conv2d(*args, **kwargs) -> torch.nn.modules.conv.Conv2d:
@@ -58,7 +42,7 @@ def conv2d(*args, **kwargs) -> torch.nn.modules.conv.Conv2d:
         dilation: The filter dilation factor.
         bias: Whether to add a bias.
     """
-    return _conv(2, *args, **kwargs)
+    pass
 
 
 def conv3d(*args, **kwargs) -> torch.nn.modules.conv.Conv3d:
@@ -72,7 +56,7 @@ def conv3d(*args, **kwargs) -> torch.nn.modules.conv.Conv3d:
         dilation: The filter dilation factor.
         bias: Whether to add a bias.
     """
-    return _conv(3, *args, **kwargs)
+    pass
 
 
 class Flatten(nn.Module):
@@ -103,7 +87,7 @@ class Flatten(nn.Module):
         super().__init__()
 
     def forward(self, x: Tensor) -> Tensor:
-        return x.view(x.shape[0], -1)
+        pass
 
 
 class SpatialSoftArgmax(nn.Module):
@@ -133,41 +117,10 @@ class SpatialSoftArgmax(nn.Module):
         w: int,
         device: torch.device,
     ) -> Tensor:
-        if self.normalize:
-            return torch.stack(
-                torch.meshgrid(
-                    torch.linspace(-1, 1, w, device=device),
-                    torch.linspace(-1, 1, h, device=device),
-                )
-            )
-        return torch.stack(
-            torch.meshgrid(
-                torch.arange(0, w, device=device),
-                torch.arange(0, h, device=device),
-            )
-        )
+        pass
 
     def forward(self, x: Tensor) -> Tensor:
-        assert x.ndim == 4, "Expecting a tensor of shape (B, C, H, W)."
-
-        # Compute a spatial softmax over the input:
-        # Given an input of shape (B, C, H, W), reshape it to (B*C, H*W) then
-        # apply the softmax operator over the last dimension.
-        b, c, h, w = x.shape
-        softmax = F.softmax(x.view(-1, h * w), dim=-1)
-
-        # Create a meshgrid of normalized pixel coordinates.
-        xc, yc = self._coord_grid(h, w, x.device)
-
-        # Element-wise multiply the x and y coordinates with the softmax, then
-        # sum over the h*w dimension. This effectively computes the weighted
-        # mean x and y locations.
-        x_mean = (softmax * xc.flatten()).sum(dim=1, keepdims=True)
-        y_mean = (softmax * yc.flatten()).sum(dim=1, keepdims=True)
-
-        # Concatenate and reshape the result to (B, C*2) where for every feature
-        # we have the expected x and y pixel locations.
-        return torch.cat([x_mean, y_mean], dim=1).view(-1, c * 2)
+        pass
 
 
 class _GlobalMaxPool(nn.Module):
@@ -186,10 +139,7 @@ class _GlobalMaxPool(nn.Module):
             raise ValueError("{}D is not supported.")
 
     def forward(self, x: Tensor) -> Tensor:
-        out = self._pool(x, kernel_size=x.size()[2:])
-        for _ in range(len(out.shape[2:])):
-            out.squeeze_(dim=-1)
-        return out
+        pass
 
 
 class GlobalMaxPool1d(_GlobalMaxPool):
@@ -229,10 +179,7 @@ class _GlobalAvgPool(nn.Module):
             raise ValueError("{}D is not supported.")
 
     def forward(self, x: Tensor) -> Tensor:
-        out = self._pool(x, kernel_size=x.size()[2:])
-        for _ in range(len(out.shape[2:])):
-            out.squeeze_(dim=-1)
-        return out
+        pass
 
 
 class GlobalAvgPool1d(_GlobalAvgPool):
@@ -291,7 +238,4 @@ class CausalConv1d(nn.Conv1d):
         )
 
     def forward(self, x: Tensor) -> Tensor:
-        res = super().forward(x)
-        if self.__padding != 0:
-            return res[:, :, : -self.__padding]
-        return res
+        pass

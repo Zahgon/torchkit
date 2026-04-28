@@ -17,8 +17,8 @@ class Stopwatch:
 
     def elapsed(self) -> float:
         """Return the elapsed time since the stopwatch was reset."""
-        return time.time() - self.time
+        pass
 
     def reset(self) -> None:
         """Reset the stopwatch, i.e. start the timer."""
-        self.time = time.time()
+        pass

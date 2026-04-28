@@ -31,10 +31,10 @@ class Logger:
         self._writer = SummaryWriter(log_dir)
 
     def close(self) -> None:
-        self._writer.close()
+        pass
 
     def flush(self) -> None:
-        self._writer.flush()
+        pass
 
     def log_scalar(
         self,
@@ -51,16 +51,7 @@ class Logger:
             name: The name of the logged scalar.
             prefix: A prefix to prepend to the logged scalar.
         """
-        if isinstance(scalar, torch.Tensor):
-            if cast(torch.Tensor, scalar).ndim > 1:
-                raise ValueError("Tensor must be scalar-valued.")
-            if cast(torch.Tensor, scalar).ndim == 1:
-                if cast(torch.Tensor, scalar).shape != torch.Size([1]):
-                    raise ValueError("Tensor must be scalar-valued.")
-            scalar = cast(torch.Tensor, scalar).item()
-        assert np.isscalar(scalar), "Not a scalar."
-        msg = "/".join([prefix, name]) if prefix else name
-        self._writer.add_scalar(msg, scalar, global_step)
+        pass
 
     def log_image(
         self,
@@ -83,16 +74,7 @@ class Logger:
             nrow: The number of images displayed in each row of the grid if the
                 input image is 4D.
         """
-        msg = "/".join([prefix, name]) if prefix else name
-        assert image.ndim in [3, 4], "Must be an image or batch of images."
-        if image.ndim == 4:
-            if isinstance(image, np.ndarray):
-                image = torch.from_numpy(image).permute(0, 3, 1, 2)
-            image = torchvision.utils.make_grid(image, nrow=nrow)
-        else:
-            if isinstance(image, np.ndarray):
-                image = torch.from_numpy(image).permute(2, 0, 1)
-        self._writer.add_image(msg, image, global_step, dataformats="CHW")
+        pass
 
     def log_video(
         self,
@@ -116,29 +98,7 @@ class Logger:
             prefix: A prefix to prepend to the logged video(s).
             fps: The frames per second.
         """
-        msg = f"{prefix}/image/{name}"
-        if video.ndim not in [4, 5]:
-            raise ValueError("Must be a video or batch of videos.")
-        if video.ndim == 4:
-            if isinstance(video, np.ndarray):
-                if video.shape[-1] != 3:
-                    raise TypeError("Numpy array should have THWC format.")
-                # (T, H, W, C) -> (T, C, H, W).
-                video = torch.from_numpy(video).permute(0, 3, 1, 2)
-            elif isinstance(video, torch.Tensor):
-                if video.shape[1] != 3:
-                    raise TypeError("Torch tensor should have TCHW format.")
-            video = video.unsqueeze(0)  # (T, C, H, W) -> (1, T, C, H, W).
-        else:
-            if isinstance(video, np.ndarray):
-                if video.shape[-1] != 3:
-                    raise TypeError("Numpy array should have BTHWC format.")
-                # (B, T, H, W, C) -> (B, T, C, H, W).
-                video = torch.from_numpy(video).permute(0, 1, 4, 2, 3)
-            elif isinstance(video, torch.Tensor):
-                if video.shape[2] != 3:
-                    raise TypeError("Torch tensor should have BTCHW format.")
-        self._writer.add_video(msg, video, global_step, fps=fps)
+        pass
 
     def log_learning_rate(
         self,
@@ -152,8 +112,4 @@ class Logger:
             optimizer: An optimizer.
             global_step: The training iteration step.
         """
-        if not isinstance(optimizer, torch.optim.Optimizer):
-            raise TypeError("Optimizer must be an instance of torch.optim.Optimizer.")
-        for param_group in optimizer.param_groups:
-            lr = param_group["lr"]
-        self.log_scalar(lr, global_step, "learning_rate", prefix)
+        pass
